@@ -39,10 +39,20 @@ Kalau tidak muncul di keduanya, langkah Bonjour dibuang dari spec §5.2 dan stor
 
 | Hal | Hasil |
 |---|---|
-| Nama perangkat UVC sebenarnya (label di `enumerateDevices`) | |
-| Mode UVC terpilih (resolusi dan fps terukur, dari panel `F1`) | |
+| Nama perangkat UVC sebenarnya (label di `enumerateDevices`) | `Blackmagic Design (1edb:be55)` (2026-11-05) |
+| Mode UVC terpilih (resolusi dan fps terukur, dari panel `F1`) | 1920×1080 @ 50 fps, dipilih otomatis (2026-11-05) |
 | Mode video ATEM saat uji | 1080p50 (diukur 2026-11-05) |
 | Bonjour: USB | |
 | Bonjour: Ethernet | |
 
 Kalau nama perangkat tidak mengandung "ATEM" atau "Blackmagic" (F1 menampilkan nama kamera yang terlihat), ubah `DEFAULT_CONFIG.cameraName` di `src/config.js` dan sesuaikan test yang bergantung padanya.
+
+## Hasil skenario (Windows, 2026-11-05)
+
+| Skenario | Hasil |
+|---|---|
+| ATEM Software Control di-uninstall | Aman, aplikasi tetap jalan |
+| USB dicabut lalu dipasang lagi | Berfungsi |
+| Kamera dipakai aplikasi lain | Berfungsi |
+| Kontrol lewat Ethernet saja | Belum diuji |
+| Jalan 24 jam | Belum diuji |
