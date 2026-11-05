@@ -1,6 +1,6 @@
 const os = require('node:os')
 const path = require('node:path')
-const { app, BrowserWindow, ipcMain, session, shell } = require('electron')
+const { app, BrowserWindow, ipcMain, powerSaveBlocker, session, shell } = require('electron')
 const { Atem } = require('atem-connection')
 const { loadConfig, updateConfig } = require('./config')
 const { ensureOutputs } = require('./outputs')
@@ -8,6 +8,7 @@ const { candidateAddresses } = require('./discovery')
 const { createSupervisor } = require('./supervisor')
 const { createLogger } = require('./logger')
 const { actionForKey, createHoldDetector } = require('./hotkeys')
+const { createRelaunchGuard } = require('./relaunch-guard')
 
 const IPV4 = /^(\d{1,3}\.){3}\d{1,3}$/
 
@@ -21,6 +22,7 @@ function start() {
   let win = null
   let supervisor = null
   let lastAtemState = { state: 'searching', outputWarning: false }
+  let dataDir
   let configPath
   let log
 
@@ -91,6 +93,7 @@ function start() {
     ipcMain.handle('get-status-info', () => ({
       state: lastAtemState.state,
       address: lastAtemState.address,
+      dataDir,
       logTail: log.tail(12),
     }))
   }
@@ -109,10 +112,32 @@ function start() {
   }
 
   app.whenReady().then(() => {
-    const dataDir = app.getPath('userData')
+    dataDir = app.getPath('userData')
     configPath = path.join(dataDir, 'config.json')
     log = createLogger(path.join(dataDir, 'app.log'))
     log.info(`start, electron ${process.versions.electron}, config ${configPath}`)
+
+    // Kiosk hardening: never sleep, start at login, come back after a crash (at most 5 times a minute).
+    powerSaveBlocker.start('prevent-display-sleep')
+    if (app.isPackaged) app.setLoginItemSettings({ openAtLogin: true })
+    const guard = createRelaunchGuard(path.join(dataDir, 'relaunch.json'))
+    const relaunchOrGiveUp = (reason) => {
+      log.error(reason)
+      if (guard.allow()) {
+        log.warn('relaunching')
+        app.relaunch()
+        app.exit(0)
+      } else {
+        log.error('too many relaunches in the last minute, not relaunching')
+      }
+    }
+    app.on('render-process-gone', (_e, _wc, details) => {
+      if (details.reason !== 'clean-exit') relaunchOrGiveUp(`render process gone: ${details.reason}`)
+    })
+    app.on('child-process-gone', (_e, details) => {
+      if (details.reason !== 'clean-exit') relaunchOrGiveUp(`child process gone: ${details.type} ${details.reason}`)
+    })
+    process.on('uncaughtException', (err) => relaunchOrGiveUp(`uncaught exception: ${err?.stack ?? err}`))
 
     session.defaultSession.setPermissionRequestHandler((_wc, permission, callback) => callback(permission === 'media'))
     session.defaultSession.setPermissionCheckHandler((_wc, permission) => permission === 'media')

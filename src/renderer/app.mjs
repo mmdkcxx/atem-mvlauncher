@@ -114,6 +114,7 @@ async function toggleStatusPanel() {
     `ATEM    : ${info.state}${info.address ? ` (${info.address})` : ''}`,
     `Kamera  : ${cameraStatus ?? '-'}`,
     `Mode    : ${mode}`,
+    `Data    : ${info.dataDir} (config.json, app.log)`,
     '',
     ...info.logTail,
   ].join('\n')

@@ -6,13 +6,39 @@
   "scripts": {
     "diagnose": "node scripts/diagnose.js",
     "test": "node --test",
-    "start": "electron ."
+    "start": "electron .",
+    "dist": "electron-builder --win --x64"
   },
   "dependencies": {
     "atem-connection": "3.10.3"
   },
   "main": "src/main.js",
   "devDependencies": {
-    "electron": "45.2.3"
+    "electron": "45.2.3",
+    "electron-builder": "26.18.0"
+  },
+  "build": {
+    "appId": "local.atem.mvlauncher",
+    "productName": "ATEM MV Launcher",
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "artifactName": "ATEM-MV-Launcher-Setup-${version}.${ext}"
+    },
+    "npmRebuild": false
   }
 }
