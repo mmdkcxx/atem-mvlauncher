@@ -251,3 +251,46 @@ test('stop closes the stream and no more statuses are reported', async () => {
   await delay(60)
   assert.equal(t.statuses.length, count)
 })
+
+test('cameraName accepts alternatives separated by |, and ignores virtual cameras', async () => {
+  const { createCameraController } = await load()
+  // Windows lists the ATEM video interface as "Blackmagic Design"; "ATEM Mini Pro" is only its audio side.
+  const t = setup({
+    devices: [
+      { kind: 'videoinput', deviceId: 'ndi', label: 'NDI Webcam Video (ffff:0001)' },
+      { kind: 'videoinput', deviceId: 'bm', label: 'Blackmagic Design (1edb:be55)' },
+    ],
+  })
+  const cam = createCameraController({ ...t.deps, cameraName: 'ATEM Mini Pro|Blackmagic' })
+  cam.start()
+  await until(() => t.statuses.includes('ok'))
+  const open = t.media.calls.find((c) => c.video?.deviceId)
+  assert.equal(open.video.deviceId.exact, 'bm')
+  cam.stop()
+})
+
+test('an earlier alternative wins over a later one when several devices match', async () => {
+  const { createCameraController } = await load()
+  const t = setup({
+    devices: [
+      { kind: 'videoinput', deviceId: 'bm', label: 'Blackmagic Design' },
+      { kind: 'videoinput', deviceId: 'atem', label: 'ATEM Mini Pro' },
+    ],
+  })
+  const cam = createCameraController({ ...t.deps, cameraName: 'ATEM|Blackmagic' })
+  cam.start()
+  await until(() => t.statuses.includes('ok'))
+  assert.equal(t.media.calls.find((c) => c.video?.deviceId).video.deviceId.exact, 'atem')
+  cam.stop()
+})
+
+test('onDevices reports the camera labels seen, so a wrong name can be diagnosed', async () => {
+  const { createCameraController } = await load()
+  const seen = []
+  const t = setup({ devices: [{ kind: 'videoinput', deviceId: 'x', label: 'Integrated Webcam' }, { kind: 'audioinput', deviceId: 'a', label: 'Mic' }] })
+  const cam = createCameraController({ ...t.deps, onDevices: (labels) => seen.push(labels) })
+  cam.start()
+  await until(() => t.statuses.includes('not-found'))
+  assert.deepEqual(seen[0], ['Integrated Webcam'])
+  cam.stop()
+})

@@ -72,3 +72,18 @@ test('loadConfig keeps valid fields and drops unknown ones', () => {
   fs.writeFileSync(f, JSON.stringify({ cameraName: 'Blackmagic', lastAddress: '10.0.0.5', cameraMode, extra: 1 }))
   assert.deepEqual(loadConfig(f), { cameraName: 'Blackmagic', lastAddress: '10.0.0.5', cameraMode })
 })
+
+test('the default camera name matches how Windows names the ATEM video interface', () => {
+  const needles = DEFAULT_CONFIG.cameraName.split('|').map((s) => s.toLowerCase())
+  assert.ok(needles.some((n) => 'blackmagic design (1edb:be55)'.includes(n)))
+})
+
+test('a config saved by an older build with the old default camera name migrates to the new default', () => {
+  const fs = require('node:fs'), os = require('node:os'), path = require('node:path')
+  const { loadConfig } = require('../src/config')
+  const file = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'mv-cfg-')), 'config.json')
+  fs.writeFileSync(file, JSON.stringify({ lastAddress: '1.2.3.4', cameraName: 'ATEM Mini Pro', cameraMode: null }))
+  const c = loadConfig(file)
+  assert.equal(c.cameraName, DEFAULT_CONFIG.cameraName)
+  assert.equal(c.lastAddress, '1.2.3.4')
+})

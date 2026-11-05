@@ -33,6 +33,7 @@ export function createCameraController({
   measureFps,
   onStatus,
   onStream,
+  onDevices,
   timings,
 }) {
   const t = { ...DEFAULT_TIMINGS, ...timings }
@@ -65,8 +66,14 @@ export function createCameraController({
       stopStream(await mediaDevices.getUserMedia({ video: true }))
       devices = await listVideo()
     }
-    const needle = cameraName.toLowerCase()
-    const match = devices.find((d) => d.label.toLowerCase().includes(needle))
+    onDevices?.(devices.map((d) => d.label))
+    // cameraName holds alternatives separated by "|"; an earlier alternative wins.
+    const needles = cameraName.split('|').map((n) => n.trim().toLowerCase()).filter(Boolean)
+    let match
+    for (const needle of needles) {
+      match = devices.find((d) => d.label.toLowerCase().includes(needle))
+      if (match) break
+    }
     if (!match) throw new DeviceNotFoundError(`no camera matching "${cameraName}"`)
     return match
   }

@@ -11,7 +11,8 @@ let atem = { state: 'searching', outputWarning: false }
 let cameraStatus = null
 let cameraInfo = null
 let hadVideo = false
-let config = { cameraName: 'ATEM Mini Pro', cameraMode: null }
+let config = { cameraName: 'ATEM|Blackmagic', cameraMode: null }
+let seenCameras = []
 
 const video = $('video')
 
@@ -118,6 +119,7 @@ async function toggleStatusPanel() {
     `ATEM    : ${info.state}${info.address ? ` (${info.address})` : ''}`,
     `Kamera  : ${cameraStatus ?? '-'}`,
     `Mode    : ${mode}`,
+    `Perangkat kamera: ${seenCameras.length ? seenCameras.map((l) => l || '(tanpa nama)').join(' | ') : '-'}  [cari: ${config.cameraName}]`,
     `Data    : ${info.dataDir} (config.json, app.log)`,
     '',
     ...info.logTail,
@@ -175,6 +177,9 @@ const camera = createCameraController({
     render()
   },
   onStream,
+  onDevices: (labels) => {
+    seenCameras = labels
+  },
 })
 
 const pump = () =>

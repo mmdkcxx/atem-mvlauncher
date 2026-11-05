@@ -45,4 +45,4 @@ Kalau tidak muncul di keduanya, langkah Bonjour dibuang dari spec §5.2 dan stor
 | Bonjour: USB | |
 | Bonjour: Ethernet | |
 
-Kalau nama perangkat tidak mengandung "ATEM Mini Pro", ubah `DEFAULT_CONFIG.cameraName` di `src/config.js` dan sesuaikan test yang bergantung padanya.
+Kalau nama perangkat tidak mengandung "ATEM" atau "Blackmagic" (F1 menampilkan nama kamera yang terlihat), ubah `DEFAULT_CONFIG.cameraName` di `src/config.js` dan sesuaikan test yang bergantung padanya.

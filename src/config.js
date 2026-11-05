@@ -3,7 +3,7 @@ const path = require('node:path')
 
 const DEFAULT_CONFIG = Object.freeze({
   lastAddress: null,
-  cameraName: 'ATEM Mini Pro',
+  cameraName: 'ATEM|Blackmagic',
   cameraMode: null,
 })
 
@@ -17,7 +17,8 @@ const isMode = (m) => m !== null && typeof m === 'object' && ['width', 'height',
 // Keep only known fields of the right type; anything else falls back to its default.
 function sanitize(parsed) {
   const config = defaults()
-  if (typeof parsed.cameraName === 'string' && parsed.cameraName.trim()) config.cameraName = parsed.cameraName.trim()
+  // 'ATEM Mini Pro' was the old default, persisted by earlier builds; it never matched the Windows camera name.
+  if (typeof parsed.cameraName === 'string' && parsed.cameraName.trim() && parsed.cameraName.trim() !== 'ATEM Mini Pro') config.cameraName = parsed.cameraName.trim()
   if (typeof parsed.lastAddress === 'string' && parsed.lastAddress.trim()) config.lastAddress = parsed.lastAddress.trim()
   if (isMode(parsed.cameraMode)) {
     const { width, height, frameRate } = parsed.cameraMode
