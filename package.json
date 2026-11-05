@@ -1,0 +1,12 @@
+{
+  "name": "atem-webcam-out-controller",
+  "version": "0.1.0",
+  "private": true,
+  "description": "ATEM Webcam Out Controller",
+  "scripts": {
+    "diagnose": "node scripts/diagnose.js"
+  },
+  "dependencies": {
+    "atem-connection": "3.10.3"
+  }
+}
