@@ -4,9 +4,12 @@
   "private": true,
   "description": "ATEM Webcam Out Controller",
   "scripts": {
-    "diagnose": "node scripts/diagnose.js"
+    "diagnose": "node scripts/diagnose.js",
+    "test": "node --test",
+    "start": "electron ."
   },
   "dependencies": {
     "atem-connection": "3.10.3"
-  }
+  },
+  "main": "src/main.js"
 }
