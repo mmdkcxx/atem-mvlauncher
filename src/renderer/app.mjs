@@ -62,8 +62,11 @@ function showChip(text) {
 
 // Counts the frames a stream really delivers over 3 seconds.
 async function measureFps(stream) {
+  // Attached to the page (invisible, not display:none) so Chromium keeps presenting frames to it.
   const probe = document.createElement('video')
   probe.muted = true
+  probe.style.cssText = 'position:fixed;left:0;top:0;width:2px;height:2px;opacity:0;pointer-events:none'
+  document.body.append(probe)
   probe.srcObject = stream
   await probe.play().catch(() => {})
   let frames = 0
@@ -85,6 +88,7 @@ async function measureFps(stream) {
     probe.requestVideoFrameCallback(tick)
   })
   probe.srcObject = null
+  probe.remove()
   return last > first ? ((frames - 1) * 1000) / (last - first) : 0
 }
 
@@ -143,7 +147,7 @@ $('panel-address').addEventListener('submit', async (event) => {
   event.preventDefault()
   const result = $('address-result')
   result.textContent = 'Mencoba…'
-  const ok = await mv.submitAddress($('address-input').value)
+  const ok = await mv.submitAddress($('address-input').value).catch(() => false)
   result.textContent = ok ? 'Tersambung. Alamat disimpan.' : 'ATEM tidak menjawab di alamat itu.'
   if (ok) setTimeout(() => ($('panel-address').hidden = true), 2000)
 })

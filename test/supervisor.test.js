@@ -223,3 +223,77 @@ test('stop destroys the current ATEM and no more states are emitted', async () =
   await new Promise((r) => setTimeout(r, 60))
   assert.equal(t.states.length, count)
 })
+
+test('onConnected throwing does not stop the supervisor and is reported as a fault', async () => {
+  const faults = []
+  const world = makeWorld(['B'])
+  const states = []
+  const sup = createSupervisor({
+    createAtem: () => world.createAtem(),
+    getCandidates: async () => [{ address: 'B', via: 'test' }],
+    ensureOutputs: async () => ({ ok: true, fixed: [] }),
+    onConnected: () => {
+      throw new Error('disk full')
+    },
+    timings: TIMINGS,
+  })
+  sup.on('fault', (e) => faults.push(e))
+  sup.on('state', (s) => states.push(s.state))
+  sup.start()
+  await until(() => states.includes('ready'))
+  assert.equal(faults.length, 1)
+  assert.match(faults[0].message, /disk full/)
+  await sup.stop()
+})
+
+test('createAtem throwing once is a fault, then the supervisor recovers', async () => {
+  const world = makeWorld(['B'])
+  const states = []
+  const faults = []
+  let calls = 0
+  const sup = createSupervisor({
+    createAtem: () => {
+      calls++
+      if (calls === 1) throw new Error('boom')
+      return world.createAtem()
+    },
+    getCandidates: async () => [{ address: 'B', via: 'test' }],
+    ensureOutputs: async () => ({ ok: true, fixed: [] }),
+    onConnected: () => {},
+    timings: TIMINGS,
+  })
+  sup.on('fault', (e) => faults.push(e))
+  sup.on('state', (s) => states.push(s.state))
+  sup.start()
+  await until(() => states.includes('ready'))
+  assert.equal(faults.length >= 1, true)
+  await sup.stop()
+})
+
+test('an ATEM that is already closed when the session starts sends the supervisor back to searching', async () => {
+  const world = makeWorld(['B'])
+  const make = world.createAtem
+  let first = true
+  world.createAtem = () => {
+    const atem = make()
+    if (first) {
+      first = false
+      atem.status = 0 // AtemConnectionStatus.CLOSED: the 'disconnected' event was missed
+    }
+    return atem
+  }
+  const states = []
+  const sup = createSupervisor({
+    createAtem: () => world.createAtem(),
+    getCandidates: async () => [{ address: 'B', via: 'test' }],
+    ensureOutputs: async () => ({ ok: true, fixed: [] }),
+    onConnected: () => {},
+    timings: TIMINGS,
+  })
+  sup.on('state', (s) => states.push(s.state))
+  sup.start()
+  await until(() => states.filter((n) => n === 'ready').length >= 1 && world.atems.length >= 2)
+  await until(() => states.lastIndexOf('ready') > states.indexOf('searching', 1))
+  assert.equal(world.atems[0].destroyed, true)
+  await sup.stop()
+})

@@ -11,6 +11,21 @@ function defaults() {
   return { ...DEFAULT_CONFIG }
 }
 
+const isPositive = (n) => Number.isFinite(n) && n > 0
+const isMode = (m) => m !== null && typeof m === 'object' && ['width', 'height', 'frameRate'].every((k) => isPositive(m[k]))
+
+// Keep only known fields of the right type; anything else falls back to its default.
+function sanitize(parsed) {
+  const config = defaults()
+  if (typeof parsed.cameraName === 'string' && parsed.cameraName.trim()) config.cameraName = parsed.cameraName.trim()
+  if (typeof parsed.lastAddress === 'string' && parsed.lastAddress.trim()) config.lastAddress = parsed.lastAddress.trim()
+  if (isMode(parsed.cameraMode)) {
+    const { width, height, frameRate } = parsed.cameraMode
+    config.cameraMode = { width, height, frameRate }
+  }
+  return config
+}
+
 function loadConfig(filePath) {
   let raw
   try {
@@ -34,7 +49,7 @@ function loadConfig(filePath) {
     }
     return defaults()
   }
-  return { ...defaults(), ...parsed }
+  return sanitize(parsed)
 }
 
 function saveConfig(filePath, config) {

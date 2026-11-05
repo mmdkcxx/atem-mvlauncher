@@ -51,3 +51,24 @@ test('saveConfig creates the parent folder and leaves no temp file behind', () =
   assert.equal(loadConfig(f).lastAddress, '10.0.0.1')
   assert.deepEqual(fs.readdirSync(path.dirname(f)), ['config.json'])
 })
+
+test('loadConfig replaces fields of the wrong type with defaults instead of passing them on', () => {
+  const f = tmpFile()
+  fs.writeFileSync(f, JSON.stringify({ cameraName: 5, lastAddress: 7, cameraMode: { width: 'x' } }))
+  assert.deepEqual(loadConfig(f), DEFAULT_CONFIG)
+})
+
+test('loadConfig treats an empty cameraName or lastAddress as unset', () => {
+  const f = tmpFile()
+  fs.writeFileSync(f, JSON.stringify({ cameraName: '  ', lastAddress: '' }))
+  const config = loadConfig(f)
+  assert.equal(config.cameraName, DEFAULT_CONFIG.cameraName)
+  assert.equal(config.lastAddress, null)
+})
+
+test('loadConfig keeps valid fields and drops unknown ones', () => {
+  const f = tmpFile()
+  const cameraMode = { width: 1920, height: 1080, frameRate: 50 }
+  fs.writeFileSync(f, JSON.stringify({ cameraName: 'Blackmagic', lastAddress: '10.0.0.5', cameraMode, extra: 1 }))
+  assert.deepEqual(loadConfig(f), { cameraName: 'Blackmagic', lastAddress: '10.0.0.5', cameraMode })
+})

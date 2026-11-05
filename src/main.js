@@ -9,6 +9,7 @@ const { createSupervisor } = require('./supervisor')
 const { createLogger } = require('./logger')
 const { actionForKey, createHoldDetector } = require('./hotkeys')
 const { createRelaunchGuard } = require('./relaunch-guard')
+const { createStateLogFilter } = require('./state-log')
 
 const IPV4 = /^(\d{1,3}\.){3}\d{1,3}$/
 
@@ -83,7 +84,13 @@ function start() {
 
   function wireIpc() {
     ipcMain.handle('get-config', () => loadConfig(configPath))
-    ipcMain.on('save-camera-mode', (_e, mode) => updateConfig(configPath, { cameraMode: mode }))
+    ipcMain.on('save-camera-mode', (_e, mode) => {
+      try {
+        updateConfig(configPath, { cameraMode: mode })
+      } catch (err) {
+        log.error(`could not save camera mode: ${err}`)
+      }
+    })
     ipcMain.on('log-camera', (_e, status) => log.info(`camera: ${status}`))
     ipcMain.handle('submit-address', async (_e, address) => {
       if (typeof address !== 'string' || !IPV4.test(address.trim())) return false
@@ -105,8 +112,8 @@ function start() {
       getCandidates: async () => candidateAddresses({ config: loadConfig(configPath), ifaces: os.networkInterfaces() }),
       ensureOutputs,
       onConnected: (address) => {
-        updateConfig(configPath, { lastAddress: address })
         log.info(`connected to ${address}`)
+        updateConfig(configPath, { lastAddress: address })
       },
     })
   }
@@ -144,9 +151,13 @@ function start() {
 
     wireIpc()
     supervisor = createSupervisorWithWiring()
+    const shouldLogState = createStateLogFilter()
+    supervisor.on('fault', (err) => log.error(`supervisor fault: ${err?.stack ?? err}`))
     supervisor.on('state', (s) => {
       lastAtemState = s
-      log.info(`atem: ${s.state}${s.address ? ` ${s.address}` : ''}${s.outputWarning ? ' (output warning)' : ''}`)
+      if (shouldLogState(s)) {
+        log.info(`atem: ${s.state}${s.address ? ` ${s.address}` : ''}${s.outputWarning ? ' (output warning)' : ''}`)
+      }
       win?.webContents.send('atem-state', s)
     })
     createWindow()

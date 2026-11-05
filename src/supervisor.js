@@ -31,7 +31,7 @@ class Supervisor extends EventEmitter {
   start() {
     if (this.#running) return
     this.#running = true
-    this.#runPromise = this.#run()
+    this.#runPromise = this.#supervise()
   }
 
   async stop() {
@@ -69,14 +69,33 @@ class Supervisor extends EventEmitter {
     this.emit('state', payload)
   }
 
+  // An unexpected throw must never end the supervisor: report it and start over.
+  async #supervise() {
+    while (this.#running) {
+      try {
+        await this.#run()
+      } catch (err) {
+        this.#fault(err)
+        if (this.#running) await this.#sleep(this.#t.retryMs)
+      }
+    }
+  }
+
+  #fault(err) {
+    this.emit('fault', err instanceof Error ? err : new Error(String(err)))
+  }
+
   async #run() {
     while (this.#running) {
       const connection = await this.#findConnection()
       if (!connection) return
       this.#current = connection
-      await this.#session(connection)
-      this.#current = null
-      await this.#destroy(connection.atem)
+      try {
+        await this.#session(connection)
+      } finally {
+        this.#current = null
+        await this.#destroy(connection.atem)
+      }
     }
   }
 
@@ -147,7 +166,11 @@ class Supervisor extends EventEmitter {
   }
 
   async #session({ atem, address }) {
-    this.#deps.onConnected(address)
+    try {
+      this.#deps.onConnected(address)
+    } catch (err) {
+      this.#fault(err)
+    }
     let ended = false
     let finish
     const endedPromise = new Promise((resolve) => {
@@ -158,6 +181,8 @@ class Supervisor extends EventEmitter {
     })
     this.#endSession = finish
     atem.once('disconnected', finish)
+    // The 'disconnected' event can fire while a session is being handed over; 0 is CLOSED.
+    if (atem.status === 0) finish()
 
     // Returns the ensureOutputs result, or null if the session ended meanwhile.
     const check = async (announce) => {

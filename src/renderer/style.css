@@ -60,3 +60,6 @@ body.show-video #video { opacity: 1; }
 }
 
 @media (prefers-reduced-motion: reduce) { .chip { transition: none; } }
+
+/* Author rules above set `display` on some elements; keep the hidden attribute working. */
+[hidden] { display: none !important; }
