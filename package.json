@@ -14,7 +14,6 @@
   },
   "main": "src/main.js",
   "devDependencies": {
-    "bonjour-service": "1.4.4",
     "electron": "45.2.3",
     "electron-builder": "26.18.0"
   },

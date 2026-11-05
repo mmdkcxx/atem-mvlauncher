@@ -28,13 +28,6 @@ Cara tercepat tanpa installer: salin folder `dist/win-unpacked/` (hasil `npm run
 - [ ] (d) Kontrol lewat Ethernet dengan USB-C dicabut: layar "Kamera ATEM tidak terlihat".
 - [ ] (e) PC tanpa keyboard dan mouse selama 24 jam: tetap tayang.
 
-## Uji Bonjour (Tugas 12)
-
-- [ ] `node scripts/browse-bonjour.js 10` dengan ATEM lewat USB: ATEM muncul? ya / tidak
-- [ ] `node scripts/browse-bonjour.js 10` dengan ATEM lewat Ethernet: ATEM muncul? ya / tidak
-
-Kalau tidak muncul di keduanya, langkah Bonjour dibuang dari spec §5.2 dan storyboard.
-
 ## Hasil yang perlu dicatat
 
 | Hal | Hasil |
@@ -42,8 +35,6 @@ Kalau tidak muncul di keduanya, langkah Bonjour dibuang dari spec §5.2 dan stor
 | Nama perangkat UVC sebenarnya (label di `enumerateDevices`) | `Blackmagic Design (1edb:be55)` (2026-11-05) |
 | Mode UVC terpilih (resolusi dan fps terukur, dari panel `F1`) | 1920×1080 @ 50 fps, dipilih otomatis (2026-11-05) |
 | Mode video ATEM saat uji | 1080p50 (diukur 2026-11-05) |
-| Bonjour: USB | |
-| Bonjour: Ethernet | |
 
 Kalau nama perangkat tidak mengandung "ATEM" atau "Blackmagic" (F1 menampilkan nama kamera yang terlihat), ubah `DEFAULT_CONFIG.cameraName` di `src/config.js` dan sesuaikan test yang bergantung padanya.
 

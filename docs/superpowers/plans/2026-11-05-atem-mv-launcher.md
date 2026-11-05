@@ -14,7 +14,7 @@
 
 - Aux 0 = HDMI Out, target Program (source `10010`). Aux 1 = Webcam Out, target Multi View (source `9001`).
 - Pengaturan Aux hanya dicek saat koneksi baru terbentuk. Tidak ada pemaksaan terus-menerus; hanya yang salah yang diubah; Aux yang sudah benar tidak mengirim perintah.
-- Pencarian ATEM berurutan: alamat terakhir → pasangan alamat adapter `/30` → (Bonjour, bila terbukti) ; F2 menguji alamat sebelum disimpan sebagai alamat terakhir.
+- Pencarian ATEM berurutan: alamat terakhir → pasangan alamat adapter `/30` → F2 menguji alamat sebelum disimpan sebagai alamat terakhir.
 - Waktu default: 20 dtk sebelum "tidak ditemukan", 5 dtk batas menyambung, 3 dtk konfirmasi Aux (maks 3 kali), 30 dtk ulang pengaturan Aux yang gagal, 3 dtk jeda coba ulang (pencarian dan kamera), 5 dtk gambar macet.
 - Kamera dipilih berdasarkan nama perangkat (default `"ATEM Mini Pro"`, dugaan, diverifikasi di Task 13).
 - Mode UVC: resolusi tertinggi dulu, lalu frame rate tertinggi di resolusi itu. Kandidat: 3840×2160, 1920×1080, 1280×720 × 60, 50, 30, 25 fps. Ditolak bila frame terukur selama 3 dtk kurang dari 90% dari yang diminta.
@@ -226,7 +226,7 @@
 - [ ] **Step 4: Verifikasi di mini PC bersih (tanpa Node)**: jalankan installer, restart Windows. Expected: login otomatis, aplikasi jalan sendiri, multiview tayang tanpa menyentuh apa pun. Matikan paksa proses aplikasi lewat Task Manager. Expected: aplikasi hidup lagi.
 - [ ] **Step 5: Commit** `feat: kiosk hardening, packaging and maintenance docs`
 
-### Task 12: Bonjour (bersyarat)
+### Task 12: Bonjour (DIBUANG 2026-11-05, tidak dikerjakan)
 
 **Files:**
 - Create: `scripts/browse-bonjour.js` (spike)

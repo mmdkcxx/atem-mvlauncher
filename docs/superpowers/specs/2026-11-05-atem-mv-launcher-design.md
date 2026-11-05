@@ -68,8 +68,7 @@ Alasan memilih A: `atem-connection` sudah terbukti jalan di repo ini dan satu pr
 Berhenti di cara pertama yang berhasil:
 1. Alamat terakhir yang berhasil (dari file konfigurasi).
 2. Alamat pasangan adapter USB: untuk tiap adapter jaringan lokal dengan mask `/30`, coba alamat host lainnya di subnet itu.
-3. Pencarian Bonjour (`_blackmagic._tcp`) di jaringan. Belum diverifikasi apakah ATEM Mini Pro benar mengumumkan layanan ini. Diuji saat implementasi. Kalau ternyata tidak ada, langkah ini dihapus.
-4. Alamat manual yang diisi lewat keyboard (F2). Alamat diuji sebelum disimpan.
+3. Alamat manual yang diisi lewat keyboard (F2). Alamat diuji sebelum disimpan.
 
 Pencarian berulang tiap beberapa detik tanpa batas. Satu percobaan menyambung dibatasi 5 detik.
 
@@ -131,11 +130,10 @@ Batas yang diketahui:
 - Cara menyembunyikan kursor dan mencegah tidur di Electron dan Windows.
 - Cara membuat paket `.exe`.
 - Teks pesan final di tiap layar (isi di storyboard adalah patokan, bukan salinan akhir).
-- Hasil uji Bonjour (bagian 5.2).
 
 ## 9. Risiko dan hal yang belum diuji
 
-- Nama perangkat UVC yang sebenarnya di Windows belum diketahui ("ATEM Mini Pro" adalah dugaan). Perlu dicek di mini PC.
+- Nama perangkat UVC di Windows ternyata "Blackmagic Design (1edb:be55)", bukan "ATEM Mini Pro". Default sekarang `ATEM|Blackmagic`.
 - Mode UVC yang sebenarnya didukung belum diukur. Hanya mode video ATEM (1080p50) yang diketahui.
 - Perilaku Windows saat adapter USB muncul dan hilang (misalnya perubahan alamat setelah dicolok ulang) belum dipantau.
-- Bonjour belum diverifikasi.
+- Pencarian Bonjour sengaja tidak dipakai (dibuang 2026-11-05): akses lewat USB sudah berhasil, dan Ethernet memakai alamat manual (F2).
