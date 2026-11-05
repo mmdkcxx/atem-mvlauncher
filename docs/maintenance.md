@@ -51,3 +51,17 @@ Folder data aplikasi ditampilkan di panel `F1` (baris **Data**). Biasanya `%APPD
 | Kamera dipakai aplikasi lain | Tutup OBS, Zoom, Teams, atau aplikasi lain yang memakai kamera |
 | Windows memblokir kamera | Aktifkan akses kamera untuk aplikasi desktop (langkah 3 di atas, atau tekan `F3`) |
 | Spanduk kuning "Output ATEM belum sesuai" | Aplikasi tidak berhasil mengubah Aux. Cek koneksi; aplikasi mengulang tiap 30 detik |
+
+## Membuat installer (.exe) di Windows
+
+Dikerjakan sekali di PC pengembang (bukan di mini PC). Butuh Node.js 20 atau lebih baru dan Git.
+
+```
+git clone https://github.com/mmdkcxx/atem-mvlauncher.git
+cd atem-mvlauncher
+npm ci
+npm test
+npm run dist
+```
+
+Hasilnya `dist\ATEM-MV-Launcher-Setup-<versi>.exe`. Salin satu file itu ke mini PC dan jalankan. Hapus folder `dist` sebelum build ulang bila ingin hasil bersih.
