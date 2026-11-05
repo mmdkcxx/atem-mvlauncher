@@ -11,5 +11,8 @@
   "dependencies": {
     "atem-connection": "3.10.3"
   },
-  "main": "src/main.js"
+  "main": "src/main.js",
+  "devDependencies": {
+    "electron": "45.2.3"
+  }
 }

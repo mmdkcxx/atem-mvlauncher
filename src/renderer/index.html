@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; media-src 'self' blob:; style-src 'self'; script-src 'self'">
+  <title>ATEM MV Launcher</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <video id="video" autoplay muted playsinline></video>
+
+  <main id="status" class="status" hidden>
+    <h1 id="status-title"></h1>
+    <p id="status-subtitle" class="subtitle" hidden></p>
+    <ul id="status-steps" class="steps"></ul>
+    <p id="status-hint" class="hint" hidden></p>
+  </main>
+
+  <div id="veil" class="veil" hidden>
+    <h1 id="veil-title"></h1>
+    <p id="veil-hint" class="hint"></p>
+  </div>
+
+  <div id="banner" class="banner" hidden></div>
+  <div id="chip" class="chip"></div>
+
+  <section id="panel-status" class="panel" hidden>
+    <h2>Status</h2>
+    <pre id="panel-status-body"></pre>
+  </section>
+
+  <form id="panel-address" class="panel" hidden>
+    <h2>Alamat ATEM</h2>
+    <input id="address-input" type="text" inputmode="decimal" autocomplete="off" placeholder="172.28.8.201">
+    <p id="address-result" class="hint">Enter untuk mencoba, Esc untuk batal.</p>
+  </form>
+
+  <script type="module" src="app.mjs"></script>
+</body>
+</html>
