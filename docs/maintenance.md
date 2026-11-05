@@ -15,7 +15,7 @@ Aplikasi tidak membutuhkan Node.js atau program lain di PC tujuan.
 
 - Mencari ATEM dengan urutan: alamat terakhir yang berhasil, lalu pasangan alamat adapter USB (`/30`).
 - Setiap koneksi baru ke ATEM, Aux 0 (HDMI Out) diatur ke Program dan Aux 1 (Webcam Out) diatur ke Multi View. Hanya Aux yang salah yang diubah.
-- Membuka kamera UVC bernama "ATEM Mini Pro" dengan resolusi tertinggi, lalu frame rate tertinggi di resolusi itu.
+- Membuka kamera UVC ATEM (di Windows bernama "Blackmagic Design", dicari lewat `ATEM|Blackmagic`) dengan resolusi tertinggi, lalu frame rate tertinggi di resolusi itu.
 - Pulih sendiri saat ATEM terputus, ATEM restart, atau kamera hilang.
 - Layar tidak boleh tidur. Kalau aplikasi mati karena error, ia dijalankan lagi (maksimal 5 kali per menit).
 
